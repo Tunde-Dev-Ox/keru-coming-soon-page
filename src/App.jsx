@@ -12,7 +12,7 @@ function useCountdown(targetDate) {
     const now = new Date().getTime()
     const distance = Math.max(0, targetDate.getTime() - now)
 
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24))
+    const days = Math.floor(distance / (1000 * 60 * 60 * 20))
     const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
     const seconds = Math.floor((distance % (1000 * 60)) / 1000)
@@ -106,7 +106,17 @@ function App() {
           source: 'keru-coming-soon',
           created_at: new Date().toISOString(),
         })
-      if (error) throw error
+        if (error) {
+          // Supabase can return either a code or a message
+          if (
+            error.code === '23505' || 
+            (error.message && error.message.toLowerCase().includes('duplicate key'))
+          ) {
+            setMessage('This email is already subscribed. ✅')
+            return
+          }
+          throw error
+        }
       
       // Show success modal instead of message
       setSubscribedEmail(email)

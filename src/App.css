@@ -250,3 +250,26 @@
   .time-unit { width: 100%; }
   .subscribe { grid-template-columns: 1fr; }
 }
+
+
+
+/* Truck animation */
+.truck {
+  animation: driveBounce 2.5s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+@keyframes driveBounce {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+  }
+  25% {
+    transform: translateX(4px) translateY(-2px);
+  }
+  50% {
+    transform: translateX(8px) translateY(0);
+  }
+  75% {
+    transform: translateX(4px) translateY(-2px);
+  }
+}
