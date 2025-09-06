@@ -116,6 +116,32 @@
 .cta-title { margin: 0; font-size: clamp(20px, 3.5vw, 28px); }
 .cta-subtitle { margin: 0 0 6px; color: var(--sb-dim); }
 
+.lead-form { width: 100%; max-width: 840px; display: grid; gap: 12px; text-align: left; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-field { display: grid; gap: 6px; }
+.form-field label { font-size: 12px; color: var(--sb-dim); font-weight: 700; letter-spacing: 0.2px; }
+.form-field input,
+.form-field select,
+.form-field textarea { background: #0d1230; color: var(--sb-text); border: 1.5px solid #2a356f; border-radius: 12px; padding: 12px 14px; font-size: 14px; outline: none; }
+.form-field input::placeholder,
+.form-field textarea::placeholder { color: #7e88bf; }
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus { border-color: var(--sb-primary); box-shadow: 0 0 0 4px rgba(110,231,250,0.15); }
+
+.pill-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: #12183a; border: 1px solid #27316f; cursor: pointer; user-select: none; }
+.pill input { display: none; }
+.pill.selected { background: linear-gradient(135deg, rgba(110,231,250,0.15), rgba(167,139,250,0.15)); border-color: var(--sb-primary); }
+.pill span { font-size: 13px; font-weight: 700; color: var(--sb-text); }
+
+.form-consent { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-top: 4px; }
+.consent { display: inline-flex; align-items: center; gap: 10px; color: var(--sb-dim); font-size: 13px; }
+.consent input { width: 16px; height: 16px; }
+.submit-lead { padding: 12px 16px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--sb-primary), var(--sb-primary-2)); color: #0b1023; font-weight: 900; cursor: pointer; }
+.submit-lead:hover { filter: brightness(1.05); }
+.submit-lead:disabled { opacity: 0.7; cursor: not-allowed; }
+
 .subscribe { display: grid; grid-template-columns: 1fr auto; gap: 10px; width: min(560px, 100%); }
 .email-input { padding: 14px 16px; border-radius: 12px; border: 1.5px solid #2a356f; outline: none; font-size: 16px; background: #0d1230; color: var(--sb-text); }
 .email-input::placeholder { color: #7e88bf; }
@@ -136,6 +162,7 @@
   .subjects-grid { grid-template-columns: repeat(3, 1fr); }
   .steps { grid-template-columns: 1fr; }
   .tutor-grid, .testimonial-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 520px) {

@@ -4,47 +4,107 @@ import { supabase, isSupabaseConfigured } from './lib/supabase.js'
 import { SuccessModal } from './components/SuccessModal.jsx'
 
 function App() {
+  // Lead form state
+  const [studentName, setStudentName] = useState('')
+  const [parentName, setParentName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [city, setCity] = useState('')
+  const [country, setCountry] = useState('')
+  const [level, setLevel] = useState('')
+  const [curriculum, setCurriculum] = useState('')
+  const [selectedSubjects, setSelectedSubjects] = useState([])
+  const [modality, setModality] = useState('')
+  const [availability, setAvailability] = useState('')
+  const [goals, setGoals] = useState('')
+  const [timeline, setTimeline] = useState('')
+  const [budgetRange, setBudgetRange] = useState('')
+  const [referral, setReferral] = useState('')
+  const [consent, setConsent] = useState(false)
+
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [subscribedEmail, setSubscribedEmail] = useState('')
 
-  async function handleSubscribe(event) {
+  function toggleSubject(subject) {
+    setSelectedSubjects((prev) =>
+      prev.includes(subject) ? prev.filter((s) => s !== subject) : [...prev, subject]
+    )
+  }
+
+  function validateForm() {
+    if (!studentName.trim()) return 'Please enter the student’s name.'
+    if (!/[^@\s]+@[^@\s]+\.[^@\s]+/.test(email)) return 'Please enter a valid email address.'
+    if (!country.trim()) return 'Please enter your country.'
+    if (!level) return 'Please select the student level.'
+    if (!curriculum) return 'Please select a curriculum.'
+    if (selectedSubjects.length === 0) return 'Select at least one subject.'
+    if (!modality) return 'Please select preferred learning mode.'
+    if (!availability.trim()) return 'Please share availability (days and times).'
+    if (!consent) return 'Please accept the privacy consent to proceed.'
+    return ''
+  }
+
+  async function handleLeadSubmit(event) {
     event.preventDefault()
-    const isValid = /[^@\s]+@[^@\s]+\.[^@\s]+/.test(email)
-    if (!isValid) {
-      setMessage('Please enter a valid email address.')
+    const validationError = validateForm()
+    if (validationError) {
+      setMessage(validationError)
       return
     }
     if (!isSupabaseConfigured) {
-      setMessage('Subscription service is not configured yet.')
+      setMessage('Lead form service is not configured yet.')
       return
     }
     try {
       setIsSubmitting(true)
       setMessage('')
+      const payload = {
+        student_name: studentName,
+        parent_name: parentName || null,
+        email,
+        phone: phone || null,
+        city: city || null,
+        country,
+        level,
+        curriculum,
+        subjects: selectedSubjects,
+        modality,
+        availability,
+        goals: goals || null,
+        timeline: timeline || null,
+        budget_range: budgetRange || null,
+        referral: referral || null,
+      }
       const { error } = await supabase
-        .from('subscribers')
+        .from('leads')
         .insert({
-          email,
+          ...payload,
           source: 'skoolboots-landing',
           created_at: new Date().toISOString(),
         })
-      if (error) {
-        if (
-          error.code === '23505' ||
-          (error.message && error.message.toLowerCase().includes('duplicate key'))
-        ) {
-          setMessage('This email is already subscribed. ✅')
-          return
-        }
-        throw error
-      }
+      if (error) throw error
 
       setSubscribedEmail(email)
       setShowSuccessModal(true)
+      // reset minimal fields
+      setStudentName('')
+      setParentName('')
       setEmail('')
+      setPhone('')
+      setCity('')
+      setCountry('')
+      setLevel('')
+      setCurriculum('')
+      setSelectedSubjects([])
+      setModality('')
+      setAvailability('')
+      setGoals('')
+      setTimeline('')
+      setBudgetRange('')
+      setReferral('')
+      setConsent(false)
     } catch (err) {
       setMessage('Something went wrong. Please try again later.')
     } finally {
@@ -190,24 +250,148 @@ function App() {
       <section id="get-started" className="cta">
         <div className="cta-inner">
           <h2 className="cta-title">Get matched to a tutor</h2>
-          <p className="cta-subtitle">Join the waitlist — we’ll notify you when your perfect tutor is available.</p>
-          <form className="subscribe" onSubmit={handleSubscribe} noValidate>
-            <label htmlFor="email" className="visually-hidden">Email address</label>
-            <input
-              id="email"
-              className="email-input"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              aria-describedby="subscribe-help"
-              required
-            />
-            <button className="subscribe-button" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Submitting…' : 'Join waitlist'}
-            </button>
+          <p className="cta-subtitle">Tell us a bit about the student. We’ll hand-match an elite STEM tutor.</p>
+          <form className="lead-form" onSubmit={handleLeadSubmit} noValidate>
+            <div className="form-row">
+              <div className="form-field">
+                <label htmlFor="studentName">Student name</label>
+                <input id="studentName" type="text" value={studentName} onChange={(e) => setStudentName(e.target.value)} placeholder="First and last name" required />
+              </div>
+              <div className="form-field">
+                <label htmlFor="parentName">Parent/Guardian (optional)</label>
+                <input id="parentName" type="text" value={parentName} onChange={(e) => setParentName(e.target.value)} placeholder="Name of contact" />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-field">
+                <label htmlFor="email">Email</label>
+                <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@email.com" required />
+              </div>
+              <div className="form-field">
+                <label htmlFor="phone">Phone (optional)</label>
+                <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+234 801 234 5678" />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-field">
+                <label htmlFor="country">Country</label>
+                <input id="country" type="text" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Nigeria" required />
+              </div>
+              <div className="form-field">
+                <label htmlFor="city">City (optional)</label>
+                <input id="city" type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Lagos" />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-field">
+                <label htmlFor="level">Student level</label>
+                <select id="level" value={level} onChange={(e) => setLevel(e.target.value)} required>
+                  <option value="">Select level</option>
+                  <option>Primary</option>
+                  <option>Junior Secondary</option>
+                  <option>Senior Secondary</option>
+                  <option>IGCSE</option>
+                  <option>Cambridge A-Level</option>
+                  <option>IB</option>
+                  <option>University</option>
+                </select>
+              </div>
+              <div className="form-field">
+                <label htmlFor="curriculum">Curriculum</label>
+                <select id="curriculum" value={curriculum} onChange={(e) => setCurriculum(e.target.value)} required>
+                  <option value="">Select curriculum</option>
+                  <option>WAEC/NECO</option>
+                  <option>IGCSE</option>
+                  <option>Cambridge A-Level</option>
+                  <option>IB</option>
+                  <option>American</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="form-field">
+              <label>Subjects of interest</label>
+              <div className="pill-grid" role="group" aria-label="Subjects">
+                {subjects.map((s) => (
+                  <label key={s} className={`pill ${selectedSubjects.includes(s) ? 'selected' : ''}`}>
+                    <input type="checkbox" checked={selectedSubjects.includes(s)} onChange={() => toggleSubject(s)} />
+                    <span>{s}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-field">
+                <label htmlFor="modality">Preferred mode</label>
+                <select id="modality" value={modality} onChange={(e) => setModality(e.target.value)} required>
+                  <option value="">Select mode</option>
+                  <option>Online</option>
+                  <option>In-person</option>
+                  <option>Either</option>
+                </select>
+              </div>
+              <div className="form-field">
+                <label htmlFor="timeline">Timeline</label>
+                <select id="timeline" value={timeline} onChange={(e) => setTimeline(e.target.value)}>
+                  <option value="">Select timeline</option>
+                  <option>Urgent (within a week)</option>
+                  <option>Soon (2–4 weeks)</option>
+                  <option>Exploring options</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-field">
+                <label htmlFor="budget">Budget range (optional)</label>
+                <select id="budget" value={budgetRange} onChange={(e) => setBudgetRange(e.target.value)}>
+                  <option value="">Select range</option>
+                  <option>Under $10/hour</option>
+                  <option>$10–$20/hour</option>
+                  <option>$20–$40/hour</option>
+                  <option>$40+/hour</option>
+                </select>
+              </div>
+              <div className="form-field">
+                <label htmlFor="referral">How did you hear about us? (optional)</label>
+                <select id="referral" value={referral} onChange={(e) => setReferral(e.target.value)}>
+                  <option value="">Select one</option>
+                  <option>Friend/Family</option>
+                  <option>School</option>
+                  <option>Social Media</option>
+                  <option>Google</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="availability">Availability</label>
+              <textarea id="availability" rows="2" value={availability} onChange={(e) => setAvailability(e.target.value)} placeholder="e.g., Weekdays 5–7pm, Saturdays 10–12pm" required />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="goals">Goals (optional)</label>
+              <textarea id="goals" rows="3" value={goals} onChange={(e) => setGoals(e.target.value)} placeholder="Tell us what success looks like." />
+            </div>
+
+            <div className="form-consent">
+              <label className="consent">
+                <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+                <span>I agree to be contacted about tutoring and accept the privacy policy.</span>
+              </label>
+              <button className="submit-lead" type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Submitting…' : 'Get matched'}
+              </button>
+            </div>
+
+            <div id="subscribe-help" className="subscribe-help" aria-live="polite">{message}</div>
           </form>
-          <div id="subscribe-help" className="subscribe-help" aria-live="polite">{message}</div>
         </div>
       </section>
 
