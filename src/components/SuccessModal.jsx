@@ -84,11 +84,11 @@ export function SuccessModal({ isOpen, onClose, email }) {
           </div>
           
           <h2 id="success-title" className="success-title">
-            You're on the list! 🎉
+            You’re on the Skoolboots list! 🎉
           </h2>
           
           <p id="success-description" className="success-description">
-            Thanks for subscribing! We'll keep you updated on Keru's launch and send you exclusive early access when we're ready.
+            Thanks for subscribing. We’ll keep you updated and get you matched to a top STEM tutor as soon as slots open up.
           </p>
           
           <div className="email-display">
